@@ -24,6 +24,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> _authenticate(String email, String password, String url) async {
     try {
+      print(1);
       final response = await post(Uri.parse(url),
           body: json.encode({
             'email': email,
@@ -38,6 +39,7 @@ class AuthProvider with ChangeNotifier {
       _userId = responseData['localId'];
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
+      print(_userId);
       notifyListeners();
     } catch (error) {
       print(error.toString());

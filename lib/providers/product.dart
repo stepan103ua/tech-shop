@@ -12,7 +12,7 @@ class Product with ChangeNotifier {
   var characteristics = {};
   final double price;
   final String imageUrl;
-  final List<String>? categoriesId;
+  final String? categoryId;
   bool isFavorite = false;
 
   Product({
@@ -21,7 +21,7 @@ class Product with ChangeNotifier {
     required this.description,
     required this.price,
     required this.imageUrl,
-    this.categoriesId,
+    this.categoryId,
     characteristics,
   }) {
     if (characteristics != null) {
@@ -32,7 +32,7 @@ class Product with ChangeNotifier {
   Future<void> toggleFavorite(
       BuildContext context, String userId, String token) async {
     final url =
-        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/favorites/$userId.json?auth=$token';
+        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/favorites/$userId/$id.json?auth=$token';
     isFavorite = !isFavorite;
     Provider.of<ProductsProvider>(context, listen: false).notifyListeners();
     notifyListeners();
@@ -52,6 +52,7 @@ class Product with ChangeNotifier {
       'price': price,
       'imageUrl': imageUrl,
       'characteristics': characteristics,
+      if (categoryId != null) 'categoryId': categoryId
     });
   }
 
@@ -61,6 +62,7 @@ class Product with ChangeNotifier {
     String? description,
     double? price,
     String? imageUrl,
+    String? categoryId,
     Map<dynamic, dynamic>? characteristics,
   }) {
     return Product(
@@ -69,6 +71,7 @@ class Product with ChangeNotifier {
       description: description ?? this.description,
       price: price ?? this.price,
       imageUrl: imageUrl ?? this.imageUrl,
+      categoryId: categoryId ?? this.categoryId,
       characteristics: characteristics ?? this.characteristics,
     );
   }

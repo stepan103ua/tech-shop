@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
+import 'package:tech_shop/providers/categories_provider.dart';
 import 'package:tech_shop/providers/product.dart';
 import 'package:tech_shop/providers/products_provider.dart';
 import 'package:tech_shop/widgets/appbar_icon_container.dart';
@@ -13,6 +14,7 @@ import 'package:tech_shop/widgets/loading.dart';
 import '../structures/pair.dart';
 import '../widgets/characteristics_form.dart';
 import '../widgets/no_image_container.dart';
+import '../widgets/preview_image_container.dart';
 
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({Key? key}) : super(key: key);
@@ -29,6 +31,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _mainForm = GlobalKey<FormState>();
   final _characteristicsForm = GlobalKey<FormState>();
   final List<Pair> characteristicsPairList = [];
+  String? selectedCategory;
   var _isEditing = false;
   var _isLoading = false;
   var _initialProductValues = {};
@@ -41,7 +44,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     description: '',
     price: 0,
     imageUrl: '',
-    categoriesId: [],
+    categoryId: '',
   );
 
   var characteristicsAmount = 0;
@@ -168,6 +171,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     var _productsData = Provider.of<ProductsProvider>(context, listen: false);
+    var _categoriesData =
+        Provider.of<CategoriesProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add new product"),
@@ -180,180 +185,195 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
       body: _isLoading
           ? const Loading(text: "Saving the product...")
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
-                children: [
-                  Text(
-                    "Main information",
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  Container(
-                    //height: 500,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Theme.of(context).primaryColor, width: 3),
-                      borderRadius: BorderRadius.circular(10),
+          : LayoutBuilder(
+              builder: (context, constraints) => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ListView(
+                  children: [
+                    Text(
+                      "Main information",
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    child: Form(
-                        key: _mainForm,
-                        child: Column(
-                          children: [
-                            TextFormField(
-                              initialValue: _initialProductValues['title'],
-                              decoration:
-                                  const InputDecoration(labelText: "Title"),
-                              textInputAction: TextInputAction.next,
-                              validator: (text) {
-                                if (text!.isEmpty)
-                                  return 'Title can not be empty';
-                                if (text.length <= 3) {
-                                  return 'Title must be longer then 4 or more characters';
-                                }
+                    const SizedBox(
+                      height: 16.0,
+                    ),
+                    Container(
+                      //height: 500,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).primaryColor, width: 3),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Form(
+                          key: _mainForm,
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                initialValue: _initialProductValues['title'],
+                                decoration:
+                                    const InputDecoration(labelText: "Title"),
+                                textInputAction: TextInputAction.next,
+                                validator: (text) {
+                                  if (text!.isEmpty)
+                                    return 'Title can not be empty';
+                                  if (text.length <= 3) {
+                                    return 'Title must be longer then 4 or more characters';
+                                  }
 
-                                return null;
-                              },
-                              onSaved: (titleText) => product = Product(
-                                id: product.id,
-                                title: titleText!,
-                                description: product.description,
-                                price: product.price,
-                                imageUrl: product.imageUrl,
-                                categoriesId: product.categoriesId,
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            TextFormField(
-                              initialValue: _initialProductValues['price'],
-                              decoration:
-                                  const InputDecoration(labelText: "Price"),
-                              textInputAction: TextInputAction.next,
-                              keyboardType: TextInputType.number,
-                              validator: (price) {
-                                if (price!.isEmpty)
-                                  return 'Price can not be empty';
-                                if (double.tryParse(
-                                        price.replaceFirst(',', '.')) ==
-                                    null) {
-                                  return 'Price must be a number';
-                                }
-                                if (double.parse(price.replaceFirst(',', '.')) <
-                                    0) {
-                                  return 'Price can not be negative';
-                                }
-
-                                return null;
-                              },
-                              onSaved: (priceText) => product = Product(
+                                  return null;
+                                },
+                                onSaved: (titleText) => product = Product(
                                   id: product.id,
-                                  title: product.title,
+                                  title: titleText!,
                                   description: product.description,
-                                  price: double.parse(
-                                      priceText!.replaceFirst(',', '.')),
-                                  imageUrl: product.imageUrl,
-                                  categoriesId: product.categoriesId),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            TextFormField(
-                              initialValue:
-                                  _initialProductValues['description'],
-                              decoration: const InputDecoration(
-                                  labelText: "Description"),
-                              maxLines: 4,
-                              minLines: 1,
-                              keyboardType: TextInputType.multiline,
-                              validator: (text) {
-                                if (text!.isEmpty)
-                                  return 'Description can not be empty';
-
-                                return null;
-                              },
-                              onSaved: (descriptionText) => product = Product(
-                                  id: product.id,
-                                  title: product.title,
-                                  description: descriptionText!,
                                   price: product.price,
                                   imageUrl: product.imageUrl,
-                                  categoriesId: product.categoriesId),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: _imageUrlController.text.isEmpty
-                                      ? NoImageContainer(
-                                          text: "No image",
-                                          color: Theme.of(context).primaryColor)
-                                      : Image.network(
-                                          _imageUrlController.text,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const NoImageContainer(
-                                                text: "Wrong URL",
-                                                color: Colors.red);
-                                          },
-                                        ),
+                                  categoryId: product.categoryId,
                                 ),
-                                const SizedBox(
-                                  width: 15,
-                                ),
-                                Expanded(
-                                  child: TextFormField(
-                                    decoration: const InputDecoration(
-                                        labelText: "Image URL"),
-                                    controller: _imageUrlController,
-                                    //onFieldSubmitted: (text) => setState(() {}),
-                                    focusNode: _imageFocusNode,
-                                    validator: (url) {
-                                      if (url!.isEmpty)
-                                        return 'Url can not be empty';
-                                      if (!url.endsWith('.png') &&
-                                          !url.endsWith('.jpg') &&
-                                          !url.endsWith('.jpeg')) {
-                                        return 'Invalid image url';
-                                      }
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                initialValue: _initialProductValues['price'],
+                                decoration:
+                                    const InputDecoration(labelText: "Price"),
+                                textInputAction: TextInputAction.next,
+                                keyboardType: TextInputType.number,
+                                validator: (price) {
+                                  if (price!.isEmpty)
+                                    return 'Price can not be empty';
+                                  if (double.tryParse(
+                                          price.replaceFirst(',', '.')) ==
+                                      null) {
+                                    return 'Price must be a number';
+                                  }
+                                  if (double.parse(
+                                          price.replaceFirst(',', '.')) <
+                                      0) {
+                                    return 'Price can not be negative';
+                                  }
 
-                                      return null;
-                                    },
-                                    //onEditingComplete: () => _saveMainForm(),
-                                    onSaved: (urlText) {
-                                      product = Product(
-                                          id: product.id,
-                                          title: product.title,
-                                          description: product.description,
-                                          price: product.price,
-                                          imageUrl: urlText!,
-                                          categoriesId: product.categoriesId);
-                                    },
+                                  return null;
+                                },
+                                onSaved: (priceText) => product = Product(
+                                    id: product.id,
+                                    title: product.title,
+                                    description: product.description,
+                                    price: double.parse(
+                                        priceText!.replaceFirst(',', '.')),
+                                    imageUrl: product.imageUrl,
+                                    categoryId: product.categoryId),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              TextFormField(
+                                initialValue:
+                                    _initialProductValues['description'],
+                                decoration: const InputDecoration(
+                                    labelText: "Description"),
+                                maxLines: 4,
+                                minLines: 1,
+                                keyboardType: TextInputType.multiline,
+                                validator: (text) {
+                                  if (text!.isEmpty)
+                                    return 'Description can not be empty';
+
+                                  return null;
+                                },
+                                onSaved: (descriptionText) => product = Product(
+                                    id: product.id,
+                                    title: product.title,
+                                    description: descriptionText!,
+                                    price: product.price,
+                                    imageUrl: product.imageUrl,
+                                    categoryId: product.categoryId),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              DropdownButtonFormField<String>(
+                                  decoration: const InputDecoration(
+                                      labelText: 'Category'),
+                                  validator: (category) {
+                                    if (category == null) {
+                                      return 'Select category';
+                                    }
+                                    return null;
+                                  },
+                                  value: selectedCategory,
+                                  onChanged: ((newValue) {
+                                    setState(() {
+                                      selectedCategory = newValue!;
+                                    });
+                                  }),
+                                  onSaved: (category) {
+                                    product =
+                                        product.copyWith(categoryId: category);
+                                  },
+                                  items: _categoriesData.categories
+                                      .map((category) {
+                                    return DropdownMenuItem<String>(
+                                        value: category.id,
+                                        child: Text(category.title));
+                                  }).toList()),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  PreviewImageContainer(
+                                      imageUrl: _imageUrlController.text),
+                                  const SizedBox(
+                                    width: 15,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
-                  ),
-                  CharacteristicsForm(
-                    onDelete: _deleteItem,
-                    characteristicsPairList: characteristicsPairList,
-                    characteristicsForm: _characteristicsForm,
-                    characteristics: characteristics,
-                    characteristicsAmount: characteristicsAmount,
-                  )
-                ],
+                                  Expanded(
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                          labelText: "Image URL"),
+                                      controller: _imageUrlController,
+                                      //onFieldSubmitted: (text) => setState(() {}),
+                                      focusNode: _imageFocusNode,
+                                      validator: (url) {
+                                        if (url!.isEmpty)
+                                          return 'Url can not be empty';
+                                        if (!url.endsWith('.png') &&
+                                            !url.endsWith('.jpg') &&
+                                            !url.endsWith('.jpeg')) {
+                                          return 'Invalid image url';
+                                        }
+
+                                        return null;
+                                      },
+                                      //onEditingComplete: () => _saveMainForm(),
+                                      onSaved: (urlText) {
+                                        product = Product(
+                                            id: product.id,
+                                            title: product.title,
+                                            description: product.description,
+                                            price: product.price,
+                                            imageUrl: urlText!,
+                                            categoryId: product.categoryId);
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )),
+                    ),
+                    CharacteristicsForm(
+                      onDelete: _deleteItem,
+                      characteristicsPairList: characteristicsPairList,
+                      characteristicsForm: _characteristicsForm,
+                      characteristics: characteristics,
+                      characteristicsAmount: characteristicsAmount,
+                    )
+                  ],
+                ),
               ),
             ),
     );

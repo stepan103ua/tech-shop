@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_shop/providers/auth_provider.dart';
 import 'package:tech_shop/providers/cart_provider.dart';
+import 'package:tech_shop/providers/categories_provider.dart';
 import 'package:tech_shop/providers/order_provider.dart';
-import 'package:tech_shop/providers/product.dart';
 import 'package:tech_shop/providers/products_provider.dart';
+import 'package:tech_shop/screens/add_category_screen.dart';
 import 'package:tech_shop/screens/add_product_screen.dart';
 import 'package:tech_shop/screens/auth_screen.dart';
 import 'package:tech_shop/screens/cart_screen.dart';
+import 'package:tech_shop/screens/categories_screen.dart';
 import 'package:tech_shop/screens/orders_screen.dart';
 import 'package:tech_shop/screens/product_detail_screen.dart';
 import 'package:tech_shop/screens/products_editing_screen.dart';
@@ -39,6 +41,10 @@ class MyApp extends StatelessWidget {
               previous == null ? [] : previous.orders,
               authToken: auth.token),
         ),
+        ChangeNotifierProxyProvider<AuthProvider, CategoriesProvider>(
+          create: (context) => CategoriesProvider(''),
+          update: (context, auth, previous) => CategoriesProvider(auth.token!),
+        ),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, auth, child) => MaterialApp(
@@ -68,17 +74,19 @@ class MyApp extends StatelessWidget {
                       fontSize: 20),
                   titleSmall:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
-          home: auth.isAuthenticated
-              ? const ProductOverviewScreen()
-              : AuthScreen(),
+          home: auth.isAuthenticated ? const CategoriesScreen() : AuthScreen(),
           routes: {
+            ProductOverviewScreen.routeName: (context) =>
+                const ProductOverviewScreen(),
             ProductDetailScreen.routeName: (context) =>
                 const ProductDetailScreen(),
+            CategoriesScreen.routeName: (context) => const CategoriesScreen(),
             CartScreen.routeName: (context) => const CartScreen(),
-            OrdersScreen.routeName: (context) => OrdersScreen(),
+            OrdersScreen.routeName: (context) => const OrdersScreen(),
             ProductsEditingScreen.routeName: (context) =>
                 const ProductsEditingScreen(),
             AddProductScreen.routeName: (context) => const AddProductScreen(),
+            AddCategoryScreen.routeName: (context) => const AddCategoryScreen(),
             AuthScreen.routeName: (context) => AuthScreen(),
           },
         ),
