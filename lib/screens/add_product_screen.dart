@@ -31,6 +31,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _mainForm = GlobalKey<FormState>();
   final _characteristicsForm = GlobalKey<FormState>();
   final List<Pair> characteristicsPairList = [];
+  String? categoryTitle = 'Category';
   String? selectedCategory;
   var _isEditing = false;
   var _isLoading = false;
@@ -74,6 +75,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
           'price': product.price.toString(),
           'isFavorite': product.isFavorite,
         };
+        if (product.categoryId != null) {
+          categoryTitle =
+              Provider.of<CategoriesProvider>(context, listen: false)
+                  .findById(product.categoryId!)
+                  .title;
+        }
         characteristics = product.characteristics;
         _imageUrlController.text = product.imageUrl;
         characteristicsAmount = characteristics.length;
@@ -295,15 +302,20 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 height: 20,
                               ),
                               DropdownButtonFormField<String>(
-                                  decoration: const InputDecoration(
-                                      labelText: 'Category'),
+                                  value: selectedCategory,
+                                  decoration: InputDecoration(
+                                    hintText: categoryTitle,
+                                    labelText: selectedCategory != null
+                                        ? 'Category'
+                                        : null,
+                                  ),
                                   validator: (category) {
-                                    if (category == null) {
+                                    if (category == null &&
+                                        categoryTitle == 'Category') {
                                       return 'Select category';
                                     }
                                     return null;
                                   },
-                                  value: selectedCategory,
                                   onChanged: ((newValue) {
                                     setState(() {
                                       selectedCategory = newValue!;

@@ -46,4 +46,8 @@ class CategoriesProvider with ChangeNotifier {
     _categories.add(newCategory);
     notifyListeners();
   }
+
+  shop.Category findById(String categoryId) {
+    return _categories.firstWhere((element) => element.id == categoryId);
+  }
 }

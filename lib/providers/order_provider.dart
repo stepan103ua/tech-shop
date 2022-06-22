@@ -8,8 +8,9 @@ import '../models/order.dart';
 
 class OrderProvider with ChangeNotifier {
   List<Order> _orders = [];
+  String? userId;
 
-  OrderProvider(this._orders, {this.authToken});
+  OrderProvider(this._orders, {this.authToken, this.userId});
 
   List<Order> get orders => [..._orders];
 
@@ -17,7 +18,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> loadOrders() async {
     final url =
-        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/orders.json?auth=$authToken';
+        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken';
     final response = await get(Uri.parse(url));
 
     List<Order> orders = [];
@@ -47,7 +48,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<void> addOrder(List<Cart> cartItems, double totalAmount) async {
     final url =
-        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/orders.json?auth=$authToken';
+        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken';
     var newOrder = Order(
       id: DateTime.now().toUtc().toString(),
       amount: totalAmount,

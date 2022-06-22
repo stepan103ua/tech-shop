@@ -31,7 +31,6 @@ class CharacteristicsForm extends StatefulWidget {
 class _CharacteristicsFormState extends State<CharacteristicsForm> {
   @override
   Widget build(BuildContext context) {
-    print('char built');
     return Column(
       children: [
         Container(

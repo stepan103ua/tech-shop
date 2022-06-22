@@ -12,15 +12,12 @@ class ProductsEditingScreen extends StatelessWidget {
   static const routeName = '/editing';
 
   Future<void> _refreshScreen(BuildContext context) async {
-    print('sssssssssss');
     await Provider.of<ProductsProvider>(context, listen: false)
         .loadProducts(context, all: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    var productsList =
-        Provider.of<ProductsProvider>(context, listen: false).products;
     return Scaffold(
       appBar: AppBar(
         title: const Text("Editing"),
@@ -42,8 +39,8 @@ class ProductsEditingScreen extends StatelessWidget {
             );
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            print(
-                Provider.of<ProductsProvider>(context, listen: false).products);
+            var productsList =
+                Provider.of<ProductsProvider>(context, listen: false).products;
             return RefreshIndicator(
               onRefresh: () => _refreshScreen(context),
               child: Padding(

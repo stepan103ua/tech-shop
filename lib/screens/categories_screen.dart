@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tech_shop/providers/categories_provider.dart';
 import 'package:tech_shop/screens/add_category_screen.dart';
 import 'package:tech_shop/widgets/category_item.dart';
+import 'package:tech_shop/widgets/main_drawer.dart';
 
 class CategoriesScreen extends StatelessWidget {
   static const routeName = '/categories';
@@ -21,6 +22,7 @@ class CategoriesScreen extends StatelessWidget {
               icon: const Icon(Icons.add))
         ],
       ),
+      drawer: const MainDrawer(),
       body: FutureBuilder(
         future: Provider.of<CategoriesProvider>(context, listen: false)
             .loadCategories(),

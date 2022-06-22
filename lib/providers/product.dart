@@ -12,7 +12,7 @@ class Product with ChangeNotifier {
   var characteristics = {};
   final double price;
   final String imageUrl;
-  final String? categoryId;
+  String? categoryId;
   bool isFavorite = false;
 
   Product({

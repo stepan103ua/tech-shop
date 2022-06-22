@@ -25,24 +25,20 @@ class ProductsProvider with ChangeNotifier {
   String? categotyId;
 
   Future<void> loadProducts(BuildContext context, {bool? all}) async {
-    print('1');
     final userId = Provider.of<AuthProvider>(context, listen: false).userId;
-
+    print(all);
     final url = categotyId == null || (all != null && all)
         ? 'https://tech-shop-6ad94-default-rtdb.firebaseio.com/products.json?auth=$authToken'
         : 'https://tech-shop-6ad94-default-rtdb.firebaseio.com/products.json?auth=$authToken&orderBy="categoryId"&equalTo="$categotyId"';
     final favoritesUrl =
         'https://tech-shop-6ad94-default-rtdb.firebaseio.com/favorites.json?auth=$authToken';
-    print('2');
 
     final response = await get(Uri.parse(url));
-    print('3');
+
     final favoritesResponse = await get(Uri.parse(favoritesUrl));
-    print('4');
 
     final data = json.decode(response.body) as Map<String, dynamic>?;
     final favoriteData = json.decode(favoritesResponse.body);
-    print('5');
     if (response.statusCode == 401) {
       throw UnauthorizedException('Not authentificated');
     }
@@ -50,7 +46,6 @@ class ProductsProvider with ChangeNotifier {
       print('data is null');
       return;
     }
-    print('6');
 
     final List<Product> loadedProducts = [];
 
@@ -68,9 +63,9 @@ class ProductsProvider with ChangeNotifier {
               favoriteData[userId][productId] == null
           ? false
           : favoriteData[userId][productId];
+      loadedProducts.last.categoryId = productData['categoryId'];
     });
     _products = loadedProducts;
-    print('7');
     print(_products);
     notifyListeners();
   }

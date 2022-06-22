@@ -4,8 +4,8 @@ import 'package:tech_shop/models/unauthorized_exception.dart';
 import 'package:tech_shop/providers/products_provider.dart';
 import 'package:tech_shop/screens/auth_screen.dart';
 import 'package:tech_shop/screens/cart_screen.dart';
+import 'package:tech_shop/widgets/appbar_icon_container.dart';
 import 'package:tech_shop/widgets/badge.dart';
-import 'package:tech_shop/widgets/main_drawer.dart';
 import '../widgets/products_list.dart';
 
 enum FiltersOptions { favorites, all }
@@ -34,6 +34,7 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
             .titleLarge
             ?.copyWith(fontStyle: FontStyle.italic),
       ),
+      leading: const BackIconButton(icon: Icon(Icons.arrow_back)),
       elevation: 2.0,
       actions: [
         Badge(
@@ -74,7 +75,6 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
         MediaQuery.of(context).padding.top;
     return Scaffold(
       appBar: appBar,
-      drawer: const MainDrawer(),
       body: FutureBuilder(
         future: Provider.of<ProductsProvider>(context, listen: false)
             .loadProducts(context)

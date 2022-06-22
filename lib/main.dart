@@ -14,6 +14,7 @@ import 'package:tech_shop/screens/orders_screen.dart';
 import 'package:tech_shop/screens/product_detail_screen.dart';
 import 'package:tech_shop/screens/products_editing_screen.dart';
 import 'package:tech_shop/screens/products_overview_screen.dart';
+import 'package:tech_shop/widgets/loading.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,19 +32,22 @@ class MyApp extends StatelessWidget {
           create: (context) => ProductsProvider([]),
           update: (context, auth, previous) => ProductsProvider(
             previous == null ? [] : previous.products,
-            authToken: auth.token!,
+            authToken: auth.token,
           ),
         ),
         ChangeNotifierProvider(create: (context) => CartProvider()),
         ChangeNotifierProxyProvider<AuthProvider, OrderProvider>(
           create: (context) => OrderProvider([]),
           update: (context, auth, previous) => OrderProvider(
-              previous == null ? [] : previous.orders,
-              authToken: auth.token),
+            previous == null ? [] : previous.orders,
+            authToken: auth.token,
+            userId: auth.userId,
+          ),
         ),
         ChangeNotifierProxyProvider<AuthProvider, CategoriesProvider>(
           create: (context) => CategoriesProvider(''),
-          update: (context, auth, previous) => CategoriesProvider(auth.token!),
+          update: (context, auth, previous) =>
+              CategoriesProvider(auth.token ?? ''),
         ),
       ],
       child: Consumer<AuthProvider>(
@@ -74,7 +78,18 @@ class MyApp extends StatelessWidget {
                       fontSize: 20),
                   titleSmall:
                       TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
-          home: auth.isAuthenticated ? const CategoriesScreen() : AuthScreen(),
+          home: auth.isAuthenticated
+              ? const CategoriesScreen()
+              : FutureBuilder(
+                  future: auth.tryAutoLogin(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(body: Loading(text: 'Loading...'));
+                    }
+
+                    return AuthScreen();
+                  },
+                ),
           routes: {
             ProductOverviewScreen.routeName: (context) =>
                 const ProductOverviewScreen(),
