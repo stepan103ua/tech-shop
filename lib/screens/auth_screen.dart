@@ -14,20 +14,36 @@ enum AuthPageState {
 }
 
 class AuthScreen extends StatefulWidget {
-  AuthScreen({Key? key}) : super(key: key);
+  const AuthScreen({Key? key}) : super(key: key);
   static const routeName = '/auth';
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
+  late Animation<double> _opacityAnimation;
+  late AnimationController _animationController;
+  late double deviceHeight;
+
+  final animationDuration = 300;
+  final _animationCurve = Curves.easeIn;
   var isLoginPage = true;
   var _isLoading = false;
   String? email;
   String? password;
   var tempPassword = '';
-  var _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: animationDuration));
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _animationController, curve: _animationCurve));
+    super.initState();
+  }
 
   bool saveAndValidate() {
     if (_formKey.currentState == null) return false;
@@ -97,133 +113,194 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    deviceHeight =
+        MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) => Container(
           alignment: Alignment.center,
-          //height: constraints.maxHeight,
           child: SingleChildScrollView(
             child: Column(
               children: [
                 LightedContainer(
                     padding: EdgeInsets.symmetric(
-                        vertical: constraints.maxHeight * 0.05,
+                        vertical: deviceHeight * 0.05,
                         horizontal: constraints.maxWidth * 0.05),
                     margin: EdgeInsets.symmetric(
-                        vertical: constraints.maxHeight * 0.05,
+                        vertical: deviceHeight * 0.05,
                         horizontal: constraints.maxWidth * 0.05),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Tech Shop',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge
-                              ?.copyWith(
-                                  fontStyle: FontStyle.italic, fontSize: 40),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(bottom: 8.0),
-                          child: Divider(
-                            thickness: 3,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          isLoginPage ? 'Login page' : 'Sign up page',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontFamily: 'Lato',
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        SizedBox(
-                          height: constraints.maxHeight * 0.05,
-                        ),
-                        Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                decoration:
-                                    const InputDecoration(hintText: 'Email'),
-                                validator: (email) {
-                                  if (email!.isEmpty) {
-                                    return 'Email can not be empty';
-                                  }
-                                  var emailRegex = RegExp(
-                                      r"/^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/");
-
-                                  return null;
-                                },
-                                onSaved: (email) => this.email = email,
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: animationDuration),
+                      curve: _animationCurve,
+                      height: isLoginPage
+                          ? deviceHeight * 0.45
+                          : deviceHeight * 0.53,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: deviceHeight * 0.05,
+                              child: FittedBox(
+                                child: Text(
+                                  'Tech Shop',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 40),
+                                ),
                               ),
-                              SizedBox(height: constraints.maxHeight * 0.03),
-                              TextFormField(
-                                decoration:
-                                    const InputDecoration(hintText: 'Password'),
-                                validator: (text) {
-                                  if (text!.isEmpty) {
-                                    return 'Password can not be empty';
-                                  }
-                                  if (text.length < 6) {
-                                    return 'Password must have 6 or more characters';
-                                  }
-                                  return null;
-                                },
-                                onChanged: (newPassword) =>
-                                    tempPassword = newPassword,
-                                onSaved: (password) => this.password = password,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: deviceHeight * 0.01),
+                              child: const Divider(
+                                thickness: 3,
+                                color: Colors.black,
                               ),
-                              if (!isLoginPage)
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                        height: constraints.maxHeight * 0.03),
-                                    TextFormField(
+                            ),
+                            SizedBox(
+                              height: deviceHeight * 0.04,
+                              child: FittedBox(
+                                child: Text(
+                                  isLoginPage ? 'Login page' : 'Sign up page',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontFamily: 'Lato',
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: deviceHeight * 0.05,
+                            ),
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: deviceHeight * 0.05,
+                                    child: TextFormField(
                                       decoration: const InputDecoration(
-                                          hintText: 'Confirm password'),
-                                      validator: (text) {
-                                        if (tempPassword != text) {
-                                          return 'Password does not match';
+                                          hintText: 'Email'),
+                                      validator: (email) {
+                                        if (email!.isEmpty) {
+                                          return 'Email can not be empty';
                                         }
+                                        var emailRegex = RegExp(
+                                            r"/^[a-zA-Z0-9.! #$%&'*+/=? ^_`{|}~-]+@[a-zA-Z0-9-]+(?:\. [a-zA-Z0-9-]+)*$/");
+
                                         return null;
                                       },
-                                      onSaved: (password) =>
-                                          this.password = password,
+                                      onSaved: (email) => this.email = email,
                                     ),
-                                  ],
-                                ),
-                              SizedBox(height: constraints.maxHeight * 0.03),
-                              SizedBox(
-                                width: double.infinity,
-                                child: _isLoading
-                                    ? const Center(
-                                        child: CircularProgressIndicator
-                                            .adaptive())
-                                    : ElevatedButton(
-                                        onPressed: () async {
-                                          await onSubmit(context);
+                                  ),
+                                  SizedBox(height: deviceHeight * 0.03),
+                                  SizedBox(
+                                    height: deviceHeight * 0.05,
+                                    child: TextFormField(
+                                        decoration: const InputDecoration(
+                                            hintText: 'Password'),
+                                        validator: (text) {
+                                          if (text!.isEmpty) {
+                                            print('next');
+                                            return 'Password can not be empty';
+                                          }
+                                          if (text.length < 6) {
+                                            return 'Password must have 6 or more characters';
+                                          }
+                                          return null;
                                         },
-                                        child: Text(
-                                            isLoginPage ? 'Login' : 'Sign up')),
+                                        onChanged: (newPassword) =>
+                                            tempPassword = newPassword,
+                                        onSaved: (password) {
+                                          this.password = password;
+                                          print(this.password);
+                                        }),
+                                  ),
+                                  AnimatedContainer(
+                                    duration: Duration(
+                                        milliseconds: animationDuration),
+                                    height:
+                                        isLoginPage ? 0 : deviceHeight * 0.08,
+                                    child: FadeTransition(
+                                      opacity: _opacityAnimation,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: deviceHeight * 0.03,
+                                            ),
+                                            SizedBox(
+                                              height: deviceHeight * 0.05,
+                                              child: TextFormField(
+                                                decoration:
+                                                    const InputDecoration(
+                                                        hintText:
+                                                            'Confirm password'),
+                                                validator: (text) {
+                                                  if (isLoginPage) {
+                                                    return null;
+                                                  }
+                                                  if (tempPassword != text ||
+                                                      text!.isEmpty) {
+                                                    return 'Password does not match';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: deviceHeight * 0.03),
+                                  SizedBox(
+                                    width: constraints.maxWidth,
+                                    height: deviceHeight * 0.05,
+                                    child: _isLoading
+                                        ? const Center(
+                                            child: CircularProgressIndicator
+                                                .adaptive())
+                                        : ElevatedButton(
+                                            onPressed: () async {
+                                              await onSubmit(context);
+                                            },
+                                            child: Text(isLoginPage
+                                                ? 'Login'
+                                                : 'Sign up')),
+                                  ),
+                                  SizedBox(
+                                    height: deviceHeight * 0.06,
+                                    child: FittedBox(
+                                      child: TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isLoginPage = !isLoginPage;
+                                              _formKey.currentState!.reset();
+                                              isLoginPage
+                                                  ? _animationController
+                                                      .reverse()
+                                                  : _animationController
+                                                      .forward();
+                                            });
+                                          },
+                                          child: Text(isLoginPage
+                                              ? "Create account"
+                                              : 'Back to login')),
+                                    ),
+                                  )
+                                ],
                               ),
-                              TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isLoginPage = !isLoginPage;
-                                      _formKey.currentState!.reset();
-                                    });
-                                  },
-                                  child: Text(isLoginPage
-                                      ? "Create account"
-                                      : 'Back to login'))
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     )),
               ],
             ),

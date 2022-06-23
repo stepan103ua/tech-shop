@@ -27,6 +27,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> _authenticate(String email, String password, String url) async {
     try {
+      print(password);
       final response = await post(Uri.parse(url),
           body: json.encode({
             'email': email,
