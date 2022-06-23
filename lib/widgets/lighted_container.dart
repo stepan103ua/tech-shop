@@ -27,7 +27,7 @@ class LightedContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(color: Colors.grey, blurRadius: 2, offset: Offset(0, 2)),
         ],
       ),

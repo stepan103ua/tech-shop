@@ -24,13 +24,18 @@ class OrdersScreen extends StatelessWidget {
                 child: CircularProgressIndicator.adaptive(),
               );
             case ConnectionState.done:
-              return Consumer<OrderProvider>(
-                builder: (context, value, child) => ListView.builder(
-                  itemBuilder: (context, index) =>
-                      OrderItem(orderData: ordersData.orders[index]),
-                  itemCount: ordersData.orders.length,
-                ),
-              );
+              return Consumer<OrderProvider>(builder: (context, value, child) {
+                return LayoutBuilder(builder: (context, constraints) {
+                  return ListView.builder(
+                    itemBuilder: (context, index) => Container(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight * 0.15,
+                        ),
+                        child: OrderItem(orderData: ordersData.orders[index])),
+                    itemCount: ordersData.orders.length,
+                  );
+                });
+              });
             default:
               return Center(
                 child: Text(

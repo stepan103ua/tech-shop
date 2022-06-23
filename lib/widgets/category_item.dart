@@ -28,8 +28,10 @@ class CategoryItem extends StatelessWidget {
             width: double.infinity,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                imageUrl,
+              child: FadeInImage(
+                placeholder:
+                    const AssetImage('assets/images/category-placeholder.png'),
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               ),
             ),

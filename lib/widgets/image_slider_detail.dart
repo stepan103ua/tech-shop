@@ -15,11 +15,17 @@ class ImageSliderDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LightedContainer(
-        margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
-        child: Image.network(
-          loadedProduct.imageUrl,
-          fit: BoxFit.cover,
-        ));
+    return Hero(
+      tag: loadedProduct.id,
+      child: LightedContainer(
+          margin: EdgeInsets.symmetric(horizontal: constraints.maxWidth * 0.05),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.network(
+              loadedProduct.imageUrl,
+              fit: BoxFit.cover,
+            ),
+          )),
+    );
   }
 }
