@@ -6,20 +6,24 @@ import 'package:tech_shop/screens/add_category_screen.dart';
 import 'package:tech_shop/widgets/category_item.dart';
 import 'package:tech_shop/widgets/main_drawer.dart';
 
+import '../providers/auth_provider.dart';
+
 class CategoriesScreen extends StatelessWidget {
   static const routeName = '/categories';
   const CategoriesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var isAdmin = Provider.of<AuthProvider>(context, listen: false).isAdmin;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categories'),
         actions: [
-          IconButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(AddCategoryScreen.routeName),
-              icon: const Icon(Icons.add))
+          if (isAdmin != null && isAdmin)
+            IconButton(
+                onPressed: () => Navigator.of(context)
+                    .pushNamed(AddCategoryScreen.routeName),
+                icon: const Icon(Icons.add))
         ],
       ),
       drawer: const MainDrawer(),

@@ -11,6 +11,7 @@ class MainDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var isAdmin = Provider.of<AuthProvider>(context, listen: false).isAdmin;
     return Drawer(
       child: Column(
         children: [
@@ -40,15 +41,20 @@ class MainDrawer extends StatelessWidget {
           const Divider(
             thickness: 2,
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text("Edit products"),
-            onTap: () => Navigator.of(context)
-                .pushReplacementNamed(ProductsEditingScreen.routeName),
-          ),
-          const Divider(
-            thickness: 2,
-          ),
+          if (isAdmin != null && isAdmin)
+            Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text("Edit products"),
+                  onTap: () => Navigator.of(context)
+                      .pushReplacementNamed(ProductsEditingScreen.routeName),
+                ),
+                const Divider(
+                  thickness: 2,
+                )
+              ],
+            ),
           ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text("Log out"),

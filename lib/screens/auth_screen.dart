@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_shop/models/http_exception.dart';
 import 'package:tech_shop/providers/auth_provider.dart';
-import 'package:tech_shop/widgets/login_container.dart';
 
 import '../widgets/lighted_container.dart';
 
@@ -26,6 +23,8 @@ class _AuthScreenState extends State<AuthScreen>
   late Animation<double> _opacityAnimation;
   late AnimationController _animationController;
   late double deviceHeight;
+  var passwordObscure = true;
+  var confirmPasswordObscure = true;
 
   final animationDuration = 300;
   final _animationCurve = Curves.easeIn;
@@ -186,6 +185,7 @@ class _AuthScreenState extends State<AuthScreen>
                                     height: deviceHeight * 0.05,
                                     child: TextFormField(
                                       decoration: const InputDecoration(
+                                          prefixIcon: Icon(Icons.email),
                                           hintText: 'Email'),
                                       validator: (email) {
                                         if (email!.isEmpty) {
@@ -203,11 +203,25 @@ class _AuthScreenState extends State<AuthScreen>
                                   SizedBox(
                                     height: deviceHeight * 0.05,
                                     child: TextFormField(
-                                        decoration: const InputDecoration(
+                                        obscureText: passwordObscure,
+                                        decoration: InputDecoration(
+                                            prefixIcon:
+                                                const Icon(Icons.password),
+                                            suffixIcon: IconButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    passwordObscure =
+                                                        !passwordObscure;
+                                                  });
+                                                },
+                                                icon: passwordObscure
+                                                    ? const Icon(
+                                                        Icons.visibility_off)
+                                                    : const Icon(
+                                                        Icons.visibility)),
                                             hintText: 'Password'),
                                         validator: (text) {
                                           if (text!.isEmpty) {
-                                            print('next');
                                             return 'Password can not be empty';
                                           }
                                           if (text.length < 6) {
@@ -219,7 +233,6 @@ class _AuthScreenState extends State<AuthScreen>
                                             tempPassword = newPassword,
                                         onSaved: (password) {
                                           this.password = password;
-                                          print(this.password);
                                         }),
                                   ),
                                   AnimatedContainer(
@@ -238,10 +251,25 @@ class _AuthScreenState extends State<AuthScreen>
                                             SizedBox(
                                               height: deviceHeight * 0.05,
                                               child: TextFormField(
-                                                decoration:
-                                                    const InputDecoration(
-                                                        hintText:
-                                                            'Confirm password'),
+                                                obscureText:
+                                                    confirmPasswordObscure,
+                                                decoration: InputDecoration(
+                                                    prefixIcon: const Icon(
+                                                        Icons.password),
+                                                    suffixIcon: IconButton(
+                                                        onPressed: () {
+                                                          setState(() {
+                                                            confirmPasswordObscure =
+                                                                !confirmPasswordObscure;
+                                                          });
+                                                        },
+                                                        icon: confirmPasswordObscure
+                                                            ? const Icon(Icons
+                                                                .visibility_off)
+                                                            : const Icon(Icons
+                                                                .visibility)),
+                                                    hintText:
+                                                        'Confirm password'),
                                                 validator: (text) {
                                                   if (isLoginPage) {
                                                     return null;

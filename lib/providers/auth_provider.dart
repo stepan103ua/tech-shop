@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
   DateTime? _expiryDate;
   String? _userId;
   Timer? _authTimer;
+  bool? isAdmin;
 
   bool get isAuthenticated => token != null;
 
@@ -25,9 +26,15 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
+  Future<bool> _isAdmin() async {
+    final adminUrl =
+        'https://tech-shop-6ad94-default-rtdb.firebaseio.com/admins/$userId.json?auth=$token';
+    final response = await get(Uri.parse(adminUrl));
+    return !(json.decode(response.body) == null);
+  }
+
   Future<void> _authenticate(String email, String password, String url) async {
     try {
-      print(password);
       final response = await post(Uri.parse(url),
           body: json.encode({
             'email': email,
@@ -43,6 +50,8 @@ class AuthProvider with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
       autoLogout();
+      isAdmin = await _isAdmin();
+      print(isAdmin);
       notifyListeners();
       final sharedPreferences = await SharedPreferences.getInstance();
       final userData = json.encode({
@@ -91,7 +100,8 @@ class AuthProvider with ChangeNotifier {
     _token = token;
     _userId = userId;
     _expiryDate = expiryDate;
-
+    isAdmin = await _isAdmin();
+    print(isAdmin);
     notifyListeners();
 
     autoLogout();
