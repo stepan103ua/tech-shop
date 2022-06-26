@@ -44,6 +44,12 @@ class _AuthScreenState extends State<AuthScreen>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   bool saveAndValidate() {
     if (_formKey.currentState == null) return false;
     if (!_formKey.currentState!.validate()) return false;
